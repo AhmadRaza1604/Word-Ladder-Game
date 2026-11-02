@@ -1,0 +1,11 @@
+{
+  "name": "word-ladder-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Word Ladder interactive web application and live player",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  }
+}

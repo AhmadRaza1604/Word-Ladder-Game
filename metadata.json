@@ -1,0 +1,8 @@
+{
+  "name": "Word Ladder Game",
+  "description": "Transform words one letter at a time to reach the target word in Ahmad's classic puzzle game with BFS solver, hints, and 52 levels.",
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
