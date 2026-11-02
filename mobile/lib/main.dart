@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'theme/app_theme.dart';
 import 'screens/home_screen.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const WordLadderApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => AppThemeNotifier(),
+      child: const WordLadderApp(),
+    ),
+  );
 }
 
 class WordLadderApp extends StatelessWidget {
@@ -11,16 +18,29 @@ class WordLadderApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeNotifier = context.watch<AppThemeNotifier>();
+
     return MaterialApp(
-      title: 'Word Ladder Game',
+      title: "Ahmad's Word Ladder",
       debugShowCheckedModeBanner: false,
+      themeMode: themeNotifier.isNight ? ThemeMode.dark : ThemeMode.light,
       theme: ThemeData(
+        brightness: Brightness.light,
+        scaffoldBackgroundColor: AppColors.dayBackground,
+        colorScheme: const ColorScheme.light(
+          primary: AppColors.primary,
+          secondary: AppColors.accentGold,
+          surface: AppColors.daySurface,
+        ),
+        useMaterial3: true,
+      ),
+      darkTheme: ThemeData(
         brightness: Brightness.dark,
-        scaffoldBackgroundColor: const Color(0xFF0F172A),
+        scaffoldBackgroundColor: AppColors.nightBackground,
         colorScheme: const ColorScheme.dark(
-          primary: Color(0xFF4F46E5),
-          secondary: Color(0xFFF59E0B),
-          surface: Color(0xFF1E293B),
+          primary: AppColors.primary,
+          secondary: AppColors.accentGold,
+          surface: AppColors.nightSurface,
         ),
         useMaterial3: true,
       ),

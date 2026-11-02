@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" fill="none">
+  <defs>
+    <linearGradient id="bgGrad" x1="0" y1="0" x2="512" y2="512" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#090d16" />
+      <stop offset="50%" stop-color="#111827" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+    <linearGradient id="goldGrad" x1="160" y1="140" x2="352" y2="140" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#FDE047" />
+    </linearGradient>
+    <linearGradient id="railGrad" x1="0" y1="120" x2="0" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#A5B4FC" />
+      <stop offset="100%" stop-color="#6366F1" />
+    </linearGradient>
+  </defs>
+
+  <!-- Base background tile -->
+  <rect width="512" height="512" rx="128" fill="url(#bgGrad)" />
+  <rect x="16" y="16" width="480" height="480" rx="112" stroke="#4F46E5" stroke-opacity="0.3" stroke-width="8" />
+
+  <!-- Rails -->
+  <line x1="168" y1="120" x2="168" y2="400" stroke="url(#railGrad)" stroke-width="28" stroke-linecap="round" />
+  <line x1="344" y1="120" x2="344" y2="400" stroke="url(#railGrad)" stroke-width="28" stroke-linecap="round" />
+
+  <!-- Bottom Rung -->
+  <rect x="154" y="328" width="204" height="38" rx="19" fill="#6366F1" />
+  <!-- Middle Rung -->
+  <rect x="154" y="236" width="204" height="38" rx="19" fill="#06B6D4" />
+  <!-- Top Gold Rung -->
+  <rect x="154" y="144" width="204" height="38" rx="19" fill="url(#goldGrad)" />
+
+  <!-- Summit Star -->
+  <polygon points="256,64 269,96 304,104 278,126 286,160 256,140 226,160 234,126 208,104 243,96" fill="#FBBF24" />
+</svg>

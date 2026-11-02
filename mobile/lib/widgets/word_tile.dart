@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../theme/app_theme.dart';
 
 class WordTile extends StatelessWidget {
   final String letter;
@@ -16,6 +18,8 @@ class WordTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppThemeNotifier>();
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
@@ -25,24 +29,34 @@ class WordTile extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 4),
         decoration: BoxDecoration(
           color: isSelected
-              ? const Color(0xFF4F46E5)
-              : (isHighlighted ? const Color(0xFF312E81) : const Color(0xFF1E293B)),
-          borderRadius: BorderRadius.circular(12),
+              ? AppColors.primary
+              : (isHighlighted
+                  ? AppColors.accentGold.withOpacity(0.2)
+                  : theme.cardColor),
+          borderRadius: BorderRadius.circular(14),
           border: Border.all(
             color: isSelected
-                ? const Color(0xFF818CF8)
-                : (isHighlighted ? const Color(0xFFF59E0B) : const Color(0xFF334155)),
-            width: isSelected || isHighlighted ? 2.5 : 1,
+                ? AppColors.primaryLight
+                : (isHighlighted
+                    ? AppColors.accentGold
+                    : theme.borderColor),
+            width: isSelected || isHighlighted ? 2.5 : 1.5,
           ),
           boxShadow: isSelected
               ? [
                   BoxShadow(
-                    color: const Color(0xFF4F46E5).withOpacity(0.4),
-                    blurRadius: 8,
+                    color: AppColors.primary.withOpacity(0.4),
+                    blurRadius: 10,
                     offset: const Offset(0, 4),
                   )
                 ]
-              : null,
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  )
+                ],
         ),
         alignment: Alignment.center,
         child: Text(
@@ -50,7 +64,7 @@ class WordTile extends StatelessWidget {
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.w800,
-            color: isSelected ? Colors.white : const Color(0xFFF1F5F9),
+            color: isSelected ? Colors.white : theme.textColor,
             fontFamily: 'monospace',
           ),
         ),

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../theme/app_theme.dart';
 
 class VirtualKeyboard extends StatelessWidget {
   final ValueChanged<String> onLetterTap;
@@ -22,29 +24,31 @@ class VirtualKeyboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppThemeNotifier>();
+
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildRow(_rows[0]),
+          _buildRow(_rows[0], theme),
           const SizedBox(height: 6),
-          _buildRow(_rows[1]),
+          _buildRow(_rows[1], theme),
           const SizedBox(height: 6),
-          _buildBottomRow(),
+          _buildBottomRow(theme),
         ],
       ),
     );
   }
 
-  Widget _buildRow(List<String> keys) {
+  Widget _buildRow(List<String> keys, AppThemeNotifier theme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: keys.map((key) => _buildKey(key)).toList(),
+      children: keys.map((key) => _buildKey(key, theme)).toList(),
     );
   }
 
-  Widget _buildKey(String letter) {
+  Widget _buildKey(String letter, AppThemeNotifier theme) {
     return Expanded(
       child: Padding(
         padding: const EdgeInsets.symmetric(horizontal: 2.5),
@@ -54,17 +58,24 @@ class VirtualKeyboard extends StatelessWidget {
           child: Container(
             height: 46,
             decoration: BoxDecoration(
-              color: const Color(0xFF1E293B),
+              color: theme.cardColor,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: const Color(0xFF334155)),
+              border: Border.all(color: theme.borderColor),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 2,
+                  offset: const Offset(0, 1),
+                ),
+              ],
             ),
             alignment: Alignment.center,
             child: Text(
               letter,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
-                color: Color(0xFFF1F5F9),
+                color: theme.textColor,
               ),
             ),
           ),
@@ -73,7 +84,7 @@ class VirtualKeyboard extends StatelessWidget {
     );
   }
 
-  Widget _buildBottomRow() {
+  Widget _buildBottomRow(AppThemeNotifier theme) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -88,20 +99,23 @@ class VirtualKeyboard extends StatelessWidget {
               child: Container(
                 height: 46,
                 decoration: BoxDecoration(
-                  color: canUndo ? const Color(0xFF334155) : const Color(0xFF0F172A),
+                  color: canUndo
+                      ? (theme.isNight ? const Color(0xFF334155) : const Color(0xFFE2E8F0))
+                      : theme.backgroundColor,
                   borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: theme.borderColor),
                 ),
                 alignment: Alignment.center,
                 child: Icon(
-                  Icons.undo,
-                  color: canUndo ? Colors.white : Colors.white30,
+                  Icons.undo_rounded,
+                  color: canUndo ? theme.textColor : theme.textMutedColor.withOpacity(0.4),
                   size: 20,
                 ),
               ),
             ),
           ),
         ),
-        ..._rows[2].map((key) => _buildKey(key)),
+        ..._rows[2].map((key) => _buildKey(key, theme)),
         // Hint button
         Expanded(
           flex: 2,
@@ -113,14 +127,14 @@ class VirtualKeyboard extends StatelessWidget {
               child: Container(
                 height: 46,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF78350F).withOpacity(0.5),
+                  color: AppColors.accentGold.withOpacity(0.12),
                   borderRadius: BorderRadius.circular(8),
-                  border: Border.all(color: const Color(0xFFF59E0B).withOpacity(0.4)),
+                  border: Border.all(color: AppColors.accentGold.withOpacity(0.4)),
                 ),
                 alignment: Alignment.center,
                 child: const Icon(
-                  Icons.lightbulb_outline,
-                  color: Color(0xFFFBBF24),
+                  Icons.lightbulb_outline_rounded,
+                  color: AppColors.accentGold,
                   size: 20,
                 ),
               ),

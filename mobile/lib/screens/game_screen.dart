@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../data/levels.dart';
 import '../data/progress_repository.dart';
 import '../domain/word_validator.dart';
 import '../domain/bfs_solver.dart';
+import '../theme/app_theme.dart';
 import '../widgets/word_tile.dart';
 import '../widgets/virtual_keyboard.dart';
+import '../widgets/victory_dialog.dart';
 
 class GameScreen extends StatefulWidget {
   final Level level;
@@ -25,11 +28,18 @@ class _GameScreenState extends State<GameScreen> {
   bool _isError = false;
   int? _hintIndex;
   bool _isComplete = false;
+  final Stopwatch _stopwatch = Stopwatch();
 
   @override
   void initState() {
     super.initState();
     _startLevel();
+  }
+
+  @override
+  void dispose() {
+    _stopwatch.stop();
+    super.dispose();
   }
 
   void _startLevel() {
@@ -43,6 +53,8 @@ class _GameScreenState extends State<GameScreen> {
       _hintIndex = null;
       _isComplete = false;
     });
+    _stopwatch.reset();
+    _stopwatch.start();
   }
 
   void _onLetterTap(String letter) {
@@ -92,6 +104,7 @@ class _GameScreenState extends State<GameScreen> {
   }
 
   void _handleWin(int totalMoves) async {
+    _stopwatch.stop();
     setState(() {
       _isComplete = true;
     });
@@ -111,71 +124,32 @@ class _GameScreenState extends State<GameScreen> {
     );
 
     if (!mounted) return;
-    _showVictoryDialog(stars, totalMoves);
-  }
 
-  void _showVictoryDialog(int stars, int totalMoves) {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: const Color(0xFF1E293B),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Center(
-          child: Text(
-            'Level Solved!',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-          ),
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(
-                3,
-                (i) => Icon(
-                  Icons.star,
-                  size: 36,
-                  color: i < stars ? const Color(0xFFF59E0B) : const Color(0xFF475569),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            Text(
-              'Moves: $totalMoves  •  Par: ${widget.level.optimalMoves}',
-              style: const TextStyle(color: Color(0xFF94A3B8)),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              _startLevel();
-            },
-            child: const Text('Replay', style: TextStyle(color: Color(0xFF818CF8))),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF4F46E5),
-              foregroundColor: Colors.white,
-            ),
-            onPressed: () {
-              Navigator.pop(ctx);
-              final next = LevelRepository.getById(widget.level.id + 1);
-              if (next != null) {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => GameScreen(level: next)),
-                );
-              } else {
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Next Level'),
-          ),
-        ],
+      builder: (_) => VictoryDialog(
+        level: widget.level,
+        stars: stars,
+        moves: totalMoves,
+        elapsedTime: _stopwatch.elapsed,
+        onNextLevel: () {
+          final next = LevelRepository.getById(widget.level.id + 1);
+          if (next != null) {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (_) => GameScreen(level: next)),
+            );
+          } else {
+            Navigator.pop(context);
+          }
+        },
+        onGoHome: () {
+          Navigator.pop(context); // Back to previous (Ladder or Home)
+        },
+        onReplay: () {
+          _startLevel();
+        },
       ),
     );
   }
@@ -213,22 +187,57 @@ class _GameScreenState extends State<GameScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = context.watch<AppThemeNotifier>();
+
     return Scaffold(
-      backgroundColor: const Color(0xFF0F172A),
+      backgroundColor: theme.backgroundColor,
       appBar: AppBar(
-        backgroundColor: const Color(0xFF1E293B),
+        backgroundColor: theme.surfaceColor,
         elevation: 0,
-        title: Text(
-          'Level ${widget.level.id}: ${widget.level.title}',
-          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back_rounded, color: theme.textColor),
+          onPressed: () => Navigator.pop(context),
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Level ${widget.level.id}: ${widget.level.title}',
+              style: TextStyle(
+                fontSize: 15,
+                fontWeight: FontWeight.bold,
+                color: theme.textColor,
+              ),
+            ),
+            Text(
+              'Par ${widget.level.optimalMoves} moves',
+              style: TextStyle(
+                fontSize: 11,
+                color: theme.textMutedColor,
+              ),
+            ),
+          ],
         ),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 16.0),
             child: Center(
-              child: Text(
-                'Moves: $_movesCount / ${widget.level.maxMoves}',
-                style: const TextStyle(color: Color(0xFF94A3B8), fontWeight: FontWeight.bold),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: AppColors.primary.withOpacity(0.12),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.primary.withOpacity(0.3)),
+                ),
+                child: Text(
+                  'Moves: $_movesCount',
+                  style: const TextStyle(
+                    fontFamily: 'monospace',
+                    fontWeight: FontWeight.bold,
+                    fontSize: 13,
+                    color: AppColors.primaryLight,
+                  ),
+                ),
               ),
             ),
           ),
@@ -247,23 +256,36 @@ class _GameScreenState extends State<GameScreen> {
                     // Target goal
                     return Container(
                       margin: const EdgeInsets.only(top: 8),
-                      padding: const EdgeInsets.all(10),
+                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
                       decoration: BoxDecoration(
-                        color: const Color(0xFF064E3B).withOpacity(0.4),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: const Color(0xFF059669)),
+                        color: AppColors.accentGold.withOpacity(0.12),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(color: AppColors.accentGold.withOpacity(0.4)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text('GOAL', style: TextStyle(color: Color(0xFF34D399), fontWeight: FontWeight.bold)),
+                          Row(
+                            children: const [
+                              Icon(Icons.flag_rounded, color: AppColors.accentGold, size: 16),
+                              SizedBox(width: 6),
+                              Text(
+                                'GOAL',
+                                style: TextStyle(
+                                  color: AppColors.accentGold,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 1,
+                                ),
+                              ),
+                            ],
+                          ),
                           Text(
                             widget.level.targetWord,
                             style: const TextStyle(
                               fontFamily: 'monospace',
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w900,
                               fontSize: 18,
-                              color: Color(0xFF6EE7B7),
+                              color: AppColors.accentGold,
                               letterSpacing: 4,
                             ),
                           ),
@@ -276,11 +298,13 @@ class _GameScreenState extends State<GameScreen> {
                   final isStart = index == 0;
                   return Container(
                     margin: const EdgeInsets.symmetric(vertical: 3),
-                    padding: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
                     decoration: BoxDecoration(
-                      color: isStart ? const Color(0xFF1E293B) : const Color(0xFF1E293B).withOpacity(0.7),
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFF334155)),
+                      color: isStart ? theme.cardColor : theme.cardColor.withOpacity(0.7),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: isStart ? AppColors.primary.withOpacity(0.4) : theme.borderColor,
+                      ),
                     ),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -288,18 +312,18 @@ class _GameScreenState extends State<GameScreen> {
                         Text(
                           isStart ? 'START' : '#$index',
                           style: TextStyle(
-                            color: isStart ? const Color(0xFFFBBF24) : const Color(0xFF64748B),
+                            color: isStart ? AppColors.accentGold : theme.textMutedColor,
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
                           ),
                         ),
                         Text(
                           word,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontFamily: 'monospace',
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
-                            color: Colors.white,
+                            color: theme.textColor,
                             letterSpacing: 4,
                           ),
                         ),
@@ -331,9 +355,9 @@ class _GameScreenState extends State<GameScreen> {
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               child: Text(
-                _feedbackMessage ?? 'Tap a tile to change that letter',
+                _feedbackMessage ?? 'Tap any tile to change letter',
                 style: TextStyle(
-                  color: _isError ? const Color(0xFFF87171) : const Color(0xFF818CF8),
+                  color: _isError ? AppColors.error : AppColors.primaryLight,
                   fontSize: 12,
                   fontWeight: FontWeight.w600,
                 ),
