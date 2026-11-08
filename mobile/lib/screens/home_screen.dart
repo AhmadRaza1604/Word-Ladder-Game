@@ -97,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> with SingleTickerProviderStateM
                             decoration: const BoxDecoration(
                               color: AppColors.accentGold,
                               shape: BoxShape.circle,
-                            ],
+                            ),
                           ),
                           const SizedBox(width: 6),
                           Text(

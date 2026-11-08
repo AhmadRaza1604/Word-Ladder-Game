@@ -45,7 +45,7 @@ class _LadderScreenState extends State<LadderScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Level ${level.id} is locked! Complete previous level with at least 1 star.'),
-          backgroundColor: AppColors.cardColorForTheme(context),
+backgroundColor: ThemeHelpers.cardColorForTheme(context),
           duration: const Duration(seconds: 2),
         ),
       );
