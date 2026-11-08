@@ -1,0 +1,39 @@
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="1024dp"
+    android:height="1024dp"
+    android:viewportWidth="1024"
+    android:viewportHeight="1024">
+
+    <!-- Night background -->
+    <path
+        android:fillColor="#090D16"
+        android:pathData="M0,0h1024v1024h-1024z" />
+
+    <!-- Left and right ladder rails -->
+    <path
+        android:strokeColor="#6366F1"
+        android:strokeWidth="72"
+        android:strokeLineCap="round"
+        android:pathData="M307,225L307,839 M717,225L717,839" />
+
+    <!-- Bottom rung -->
+    <path
+        android:fillColor="#6366F1"
+        android:pathData="M327,655h370a41,41 0,0 1,0 82h-370a41,41 0,0 1,0 -82z" />
+
+    <!-- Middle rung -->
+    <path
+        android:fillColor="#06B6D4"
+        android:pathData="M327,451h370a41,41 0,0 1,0 82h-370a41,41 0,0 1,0 -82z" />
+
+    <!-- Top rung -->
+    <path
+        android:fillColor="#F59E0B"
+        android:pathData="M327,246h370a41,41 0,0 1,0 82h-370a41,41 0,0 1,0 -82z" />
+
+    <!-- Summit star -->
+    <path
+        android:fillColor="#FBBF24"
+        android:pathData="M512,51 L544,111 L604,143 L544,175 L512,235 L480,175 L420,143 L480,111 Z" />
+</vector>
